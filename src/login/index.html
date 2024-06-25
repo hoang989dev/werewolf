@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <header>Login Form</header>
+        <form id="form_login">
+            <div class="field email">
+                <div class="input-area">
+                    <input type="text" placeholder="Email Address" name="username">
+                    <i class="icon fas fa-envelope"></i>
+                    <i class="error error-icon fas fa-exclamation-circle"></i>
+                </div>
+                <div class="error error-txt">Email can't be blank</div>
+            </div>
+            <div class="field password">
+                <div class="input-area">
+                    <input type="password" placeholder="Password" name="password">
+                    <i class="icon fas fa-lock"></i>
+                    <i class="error error-icon fas fa-exclamation-circle"></i>
+                </div>
+                <div class="error error-txt">Password can't be blank</div>
+            </div>
+            <div class="pass-txt"><a href="#">Forgot password?</a></div>
+            <button onclick="login()">Click me</button>
+        </form>
+        <div class="sign-txt">Not yet member? <a href="#">Signup now</a></div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+        import { getFirestore, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJOQc57QasrnemTS2Xd59fIjGzEnsYgts",
+            authDomain: "werewolf-a198f.firebaseapp.com",
+            projectId: "werewolf-a198f",
+            storageBucket: "werewolf-a198f.appspot.com",
+            messagingSenderId: "1009285228335",
+            appId: "1:1009285228335:web:52d8f6c0dc60d56d33e3da",
+            measurementId: "G-CF79V9K8EJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore();
+        const colRef = collection(db, "users")
+        let users = [];
+
+        getDocs(colRef).then((snapshot) => {
+            snapshot.docs.forEach(doc => { users.push({ ...doc.data(), id: doc.id }) })
+        }).catch(err => {
+            console.error(err);
+        });
+
+        export async function login() {
+            event.preventDefault();
+
+            var form = new FormData(document.getElementById("form_login"));
+            var username = form.get("username");
+            var password = form.get("password");
+            // for (const element of users) {
+            //     if (username === element.username && password === element.password) {
+            //         console.log("Login success !!!")
+            //         return;
+            //     }
+            // }
+            // console.log("FAIL ~~");
+            const q = query(colRef, where("username", "==", username));
+            const snapshot = await getDocs(q);
+            const users = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+
+            if (users?.length) {
+                const user = users[0]
+                if (username === user.username && password === user.password) {
+                    console.log("Login success !!!")
+                    return;
+                }
+            }
+
+            console.log("FAIL ~~");
+
+        }
+        window.login = login;
+
+
+
+    </script>
+</body>
+
+</html>
